@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dinamik Görev Yönetimi Uygulaması</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #282c34, #4b5361);
+            color: white;
+            margin: 0;
+            padding: 20px;
+            animation: backgroundAnimation 10s infinite alternate;
+        }
+
+        @keyframes backgroundAnimation {
+            0% { background-color: #282c34; }
+            50% { background-color: #4b5361; }
+            100% { background-color: #282c34; }
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        #taskInput, #categoryInput, #reminderTimeInput {
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            margin-right: 10px;
+        }
+
+        button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #addTaskButton {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #addTaskButton:hover {
+            background-color: #218838;
+        }
+
+        #taskList {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #taskList li {
+            padding: 10px;
+            background: #444;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background-color 0.3s;
+        }
+
+        #taskList li:hover {
+            background-color: #555;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: grey;
+        }
+
+        #reminder {
+            display: none;
+            color: #ffcc00;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Dinamik Görev Yönetimi Uygulaması</h1>
+
+<div style="display: flex; justify-content: center; margin-bottom: 20px;">
+    <input type="text" id="taskInput" placeholder="Görev ekle...">
+    <input type="text" id="categoryInput" placeholder="Kategori (İş/Kişisel vb.)">
+    <input type="number" id="reminderTimeInput" placeholder="Hatırlatıcı (dk)" min="1">
+    <button id="addTaskButton" onclick="addTask()">Görev Ekle</button>
+</div>
+
+<h2>Görev Listesi</h2>
+<ul id="taskList"></ul>
+
+<p id="reminder">Hatırlatıcı: Göreviniz zamanında tamamlanmadı!</p>
+
+<audio id="completionSound" preload="auto">
+    <source src="Okul Zil Sesi - Paydos.mp3" type="audio/mpeg">
+    <source src="Okul Zil Sesi - Paydos.mp3" type="audio/ogg">
+    Your browser does not support the audio element.
+</audio>
+
+<script>
+    const taskList = document.getElementById('taskList');
+    const reminder = document.getElementById('reminder');
+    const completionSound = document.getElementById('completionSound');
+
+    function addTask() {
+        const taskInput = document.getElementById('taskInput');
+        const categoryInput = document.getElementById('categoryInput');
+        const reminderTimeInput = document.getElementById('reminderTimeInput');
+
+        const taskText = taskInput.value.trim();
+        const categoryText = categoryInput.value.trim();
+        const reminderTime = parseInt(reminderTimeInput.value) * 60000; // Dakikayı milisaniyeye çevir
+
+        if (taskText) {
+            const li = document.createElement('li');
+            li.textContent = `${taskText} (${categoryText})`;
+
+            // Hatırlatıcı
+            if (reminderTime > 0) {
+                setTimeout(() => {
+                    reminder.style.display = 'block';
+                    playCompletionSound(); // Ses çal
+                }, reminderTime);
+            }
+
+            // Tamamla butonu
+            const completeButton = document.createElement('button');
+            completeButton.textContent = 'Tamamla';
+            completeButton.onclick = () => {
+                li.classList.toggle('completed');
+                playCompletionSound(); // Ses çal
+            };
+            li.appendChild(completeButton);
+
+            // Sil butonu
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'Sil';
+            deleteButton.onclick = () => {
+                taskList.removeChild(li);
+            };
+            li.appendChild(deleteButton);
+
+            taskList.appendChild(li);
+            taskInput.value = '';
+            categoryInput.value = '';
+            reminderTimeInput.value = '';
+            reminder.style.display = 'none'; // Hatırlatıcıyı gizle
+        }
+    }
+
+    function playCompletionSound() {
+        completionSound.currentTime = 0; // Sesin baştan çalmasını sağlar
+        completionSound.play().catch((error) => {
+            console.error("Ses çalarken hata:", error);
+        });
+    }
+</script>
+
+</body>
+</html>
